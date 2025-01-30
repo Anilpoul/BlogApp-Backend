@@ -1,10 +1,7 @@
 package com.blogapp.models;
 
-import com.blogapp.payloads.CommentDto;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,16 +10,17 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Entity
-@Table(name= "users")
+@Table(name = "users")
 @NoArgsConstructor
 @Getter
 @Setter
 public class User implements UserDetails {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
-    @Column(name = "user_name", nullable = false,length = 100)
+    @Column(name = "user_name", nullable = false, length = 100)
     private String name;
     private String email;
     private String password;
@@ -34,16 +32,16 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Comment> comments = new ArrayList<>();
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinTable(name = "user_role",
-            joinColumns = @JoinColumn(name = "user", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "role", referencedColumnName = "id"))
+    // Roles mapping
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Enumerated(EnumType.STRING)
     private Set<Role> roles = new HashSet<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        List<SimpleGrantedAuthority> authorities = this.roles.stream().map((role) -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList());
-        return authorities;
+        return this.roles.stream()
+                .map(role -> new SimpleGrantedAuthority(role.name())) // Use `.name()` for enums
+                .collect(Collectors.toList());
     }
 
     @Override

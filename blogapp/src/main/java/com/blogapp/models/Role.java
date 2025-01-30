@@ -6,13 +6,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.Data;
 
-@Entity
-@Data
-public class Role {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-
-    private String name;
+public enum Role {
+    ROLE_USER,
+    ROLE_ADMIN;
 }
