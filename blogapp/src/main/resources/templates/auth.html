@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Login / Signup</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex items-center justify-center h-screen bg-gray-100">
+<div class="bg-white p-8 rounded-lg shadow-lg w-96">
+    <!-- Toggle Buttons -->
+    <div class="flex justify-between mb-4">
+        <button id="showLogin" class="text-blue-500">Login</button>
+        <button id="showSignup" class="text-blue-500">Signup</button>
+    </div>
+
+    <!-- Login Form -->
+    <form id="loginForm">
+        <h2 class="text-xl font-semibold mb-4">Login</h2>
+        <input type="email" id="loginEmail" placeholder="Email" class="w-full p-2 border rounded mb-2" required>
+        <input type="password" id="loginPassword" placeholder="Password" class="w-full p-2 border rounded mb-4" required>
+        <button type="button" class="w-full bg-blue-500 text-white p-2 rounded" onclick="login()">Login</button>
+    </form>
+
+    <!-- Signup Form -->
+    <form id="signupForm" class="hidden">
+        <h2 class="text-xl font-semibold mb-4">Signup</h2>
+        <input type="text" id="signupName" placeholder="Full Name" class="w-full p-2 border rounded mb-2" required>
+        <input type="email" id="signupEmail" placeholder="Email" class="w-full p-2 border rounded mb-2" required>
+        <input type="password" id="signupPassword" placeholder="Password" class="w-full p-2 border rounded mb-2" required>
+        <textarea id="signupAbout" placeholder="About You" class="w-full p-2 border rounded mb-4"></textarea>
+        <button type="button" class="w-full bg-green-500 text-white p-2 rounded" onclick="signup()">Signup</button>
+    </form>
+
+    <!-- Success Message -->
+    <p id="responseMessage" class="text-green-500 mt-4 hidden"></p>
+</div>
+
+<th:block>
+    <script>
+        document.getElementById("showLogin").addEventListener("click", function() {
+            document.getElementById("loginForm").classList.remove("hidden");
+            document.getElementById("signupForm").classList.add("hidden");
+        });
+
+        document.getElementById("showSignup").addEventListener("click", function() {
+            document.getElementById("signupForm").classList.remove("hidden");
+            document.getElementById("loginForm").classList.add("hidden");
+        });
+
+        async function signup() {
+            const user = {
+                name: document.getElementById("signupName").value,
+                email: document.getElementById("signupEmail").value,
+                password: document.getElementById("signupPassword").value,
+                about: document.getElementById("signupAbout").value
+            };
+
+            const response = await fetch("http://localhost:8080/api/users/register", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(user)
+            });
+
+            if (response.ok) {
+                document.getElementById("responseMessage").innerText = "You are successfully registered!";
+                document.getElementById("responseMessage").classList.remove("hidden");
+            } else {
+                document.getElementById("responseMessage").innerText = "Registration failed!";
+                document.getElementById("responseMessage").classList.remove("hidden");
+            }
+        }
+
+        async function login() {
+            const credentials = {
+                email: document.getElementById("loginEmail").value,
+                password: document.getElementById("loginPassword").value
+            };
+
+            const response = await fetch("http://localhost:8080/api/auth/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(credentials)
+            });
+
+            if (response.ok) {
+                document.getElementById("responseMessage").innerText = "Login successful!";
+                document.getElementById("responseMessage").classList.remove("hidden");
+                window.location.href = "/dashboard"; // Redirect to dashboard
+            } else {
+                document.getElementById("responseMessage").innerText = "Login failed!";
+                document.getElementById("responseMessage").classList.remove("hidden");
+            }
+        }
+    </script>
+</th:block>
+</body>
+</html>

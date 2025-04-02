@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Application</title>
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/navbar.css">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" th:href="@{/}">Blog Application</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <!-- Updated to API-compatible routes -->
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="fetchUsers()">Users</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="fetchPosts()">Posts</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="fetchCategories()">Categories</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-5">
+    <h1 class="text-center">Welcome to the Blog Application</h1>
+    <div id="content"></div>
+</div>
+
+<script>
+    const apiBaseUrl = "/api";
+
+    function fetchUsers() {
+        fetch(`${apiBaseUrl}/users`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('content').innerHTML = JSON.stringify(data, null, 2);
+            })
+            .catch(error => console.error('Error fetching users:', error));
+    }
+
+    function fetchPosts() {
+        fetch(`${apiBaseUrl}/posts`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('content').innerHTML = JSON.stringify(data, null, 2);
+            })
+            .catch(error => console.error('Error fetching posts:', error));
+    }
+
+    function fetchCategories() {
+        fetch(`${apiBaseUrl}/categories`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('content').innerHTML = JSON.stringify(data, null, 2);
+            })
+            .catch(error => console.error('Error fetching categories:', error));
+    }
+</script>
+<script src="/static/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -29,7 +29,7 @@ public class UserDto {
     )
     private String password;
 
-    @NotNull
+
     private String about;
 
     // ✅ Added roles field to support Role-Based Authentication
