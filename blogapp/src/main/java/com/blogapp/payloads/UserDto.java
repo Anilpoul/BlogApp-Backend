@@ -32,6 +32,5 @@ public class UserDto {
     @NotNull
     private String about;
 
-    // ✅ Added roles field to support Role-Based Authentication
     private Set<Role> roles;
 }

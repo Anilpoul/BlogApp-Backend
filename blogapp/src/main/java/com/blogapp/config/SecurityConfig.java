@@ -53,7 +53,7 @@ public class SecurityConfig {
                 csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth ->
                         auth
-                .requestMatchers("/api/users/register", "/api/users/login").permitAll()
+                .requestMatchers("/api/users/register", "/api/users/login","/api/posts").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/users/").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET, "/api/users/{userId}").authenticated()
                 .requestMatchers(HttpMethod.PUT, "/api/users/{userId}").authenticated()

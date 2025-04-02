@@ -6,6 +6,8 @@ import com.blogapp.models.Post;
 import com.blogapp.models.User;
 import com.blogapp.payloads.PostDto;
 import com.blogapp.payloads.PostResponse;
+import com.blogapp.payloads.UserDto;
+import com.blogapp.payloads.UserResponseDto;
 import com.blogapp.repositories.CategoryRepo;
 import com.blogapp.repositories.PostRepo;
 import com.blogapp.repositories.UserRepo;
@@ -77,14 +79,25 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostResponse getAllPost(Integer pageNumber, Integer pageSize, String sortBy, String sortDir) {
-        Sort sort = (sortDir.equalsIgnoreCase("asc"))? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
-
+        Sort sort = (sortDir.equalsIgnoreCase("asc")) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
         Page<Post> pagePost = this.postRepo.findAll(pageable);
         List<Post> posts = pagePost.getContent();
 
+        List<PostDto> postDtos = posts.stream().map(post -> {
+            PostDto postDto = this.modelMapper.map(post, PostDto.class);
+
+            UserResponseDto userResponseDto = new UserResponseDto();
+            userResponseDto.setId(post.getUser().getId());
+            userResponseDto.setName(post.getUser().getName());
+            postDto.setUser(userResponseDto);
+
+
+            return postDto;
+        }).collect(Collectors.toList());
+
         PostResponse postResponse = new PostResponse();
-        postResponse.setContent(posts.stream().map((post)-> this.modelMapper.map(post, PostDto.class)).collect(Collectors.toList()));
+        postResponse.setContent(postDtos);
         postResponse.setPageNumber(pagePost.getNumber());
         postResponse.setPageSize(pagePost.getSize());
         postResponse.setTotalPages(pagePost.getTotalPages());
@@ -93,6 +106,7 @@ public class PostServiceImpl implements PostService {
 
         return postResponse;
     }
+
 
     @Override
     public PostDto getPostById(Integer postId) {
