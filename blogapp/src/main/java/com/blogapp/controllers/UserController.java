@@ -1,15 +1,19 @@
 package com.blogapp.controllers;
 
 import com.blogapp.payloads.ApiResponse;
+import com.blogapp.payloads.JwtAuthResponse;
+import com.blogapp.payloads.LoginRequest;
 import com.blogapp.payloads.UserDto;
 import com.blogapp.utils.JwtUtil;
 import com.blogapp.services.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -38,15 +42,34 @@ public class UserController {
 
     // 🔵 User Login with JWT Token
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestParam String username, @RequestParam String password) {
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+    public ResponseEntity<JwtAuthResponse> login(@RequestBody LoginRequest loginRequest) {
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
+            );
 
-        // Generate JWT token
-        UserDetails userDetails = userService.loadUserByUsername(username);
-        String token = jwtUtil.generateToken(userDetails);
+            UserDetails userDetails = userService.loadUserByUsername(loginRequest.getUsername());
+            String token = jwtUtil.generateToken(userDetails);
 
-        // Return token in response
-        return ResponseEntity.ok(new ApiResponse("Login successful", true, token));
+            return ResponseEntity.ok(new JwtAuthResponse("Login successful", token));
+        } catch (BadCredentialsException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new JwtAuthResponse("Invalid credentials", null));
+        }
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7);
+
+            if (jwtUtil.isTokenExpired(token)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired token");
+            }
+
+            jwtUtil.invalidateToken(token); // Add token to invalid list
+        }
+        return ResponseEntity.ok("Logged out successfully");
     }
 
 
