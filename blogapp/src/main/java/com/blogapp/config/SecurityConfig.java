@@ -51,14 +51,24 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.
                 csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth ->
-                        auth
-                .requestMatchers("/api/users/register", "/api/users/login","/api/users/logout","/api/posts").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/users/").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.GET, "/api/users/{userId}").authenticated()
-                .requestMatchers(HttpMethod.PUT, "/api/users/{userId}").authenticated()
-                .requestMatchers(HttpMethod.DELETE, "/api/users/{userId}").hasRole("ADMIN")
-                .anyRequest().authenticated())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/api/users/register",
+                                "/api/auth/register",
+                                "/api/users/login",
+                                "/api/categories/",
+                                "/api/posts",
+                                "/api/posts/images/**",
+                                "/api/posts/**",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/swagger-ui.html"
+                        ).permitAll() // Open access to the above URLs
+                        .requestMatchers(HttpMethod.GET, "/api/users/").hasRole("ADMIN") // Admin only for users list
+                        .requestMatchers(HttpMethod.GET, "/api/users/{userId}").authenticated() // Authenticated user can view their data
+                        .requestMatchers(HttpMethod.PUT, "/api/users/{userId}").authenticated() // Authenticated user can update their data
+                        .requestMatchers(HttpMethod.DELETE, "/api/users/{userId}").hasRole("ADMIN") // Admin only for user deletion
+                        .anyRequest().authenticated())
                 .sessionManagement(session-> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())

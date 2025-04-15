@@ -3,6 +3,7 @@ package com.blogapp.services;
 import com.blogapp.models.Post;
 import com.blogapp.payloads.PostDto;
 import com.blogapp.payloads.PostResponse;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -28,7 +29,7 @@ public interface PostService {
     List<PostDto> getPostsByUser(Integer userId);
 
     // Search with title and content
-    List<PostDto> searchPost(String keyword);
+    Page<PostDto> searchPost(String keyword, int page, int size);
 
 
 

@@ -139,22 +139,20 @@ public class PostServiceImpl implements PostService {
                 .collect(Collectors.toList());
     }*/
 
-    @Override
-    public List<PostDto> searchPost(String keyword) {
+    public Page<PostDto> searchPost(String keyword, int pageNumber, int pageSize) {
         if (keyword == null || keyword.trim().isEmpty()) {
             throw new IllegalArgumentException("Keyword must not be empty");
         }
 
-        List<Post> posts = this.postRepo.findByPostTitleContainingOrContentContaining(keyword, keyword);
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("creationDate").descending());
 
-        if (posts.isEmpty()) {
-            throw new ResourceNotFoundException(keyword);
-        }
+        Page<Post> postPage = postRepo.findByPostTitleContainingIgnoreCaseOrContentContainingIgnoreCase(
+                keyword.trim(), keyword.trim(), pageable
+        );
 
-        return posts.stream()
-                .map(post -> this.modelMapper.map(post, PostDto.class))
-                .collect(Collectors.toList());
+        return postPage.map(post -> modelMapper.map(post, PostDto.class));
     }
+
 
 
 

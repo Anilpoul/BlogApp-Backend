@@ -10,6 +10,7 @@ import com.blogapp.services.PostService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -90,10 +91,14 @@ public class PostController {
 
     // Search by keyword in title or content
     @GetMapping("/posts/search")
-    public ResponseEntity<List<PostDto>> searchInPost(@RequestParam("keyword") String keyword) {
-        List<PostDto> posts = postService.searchPost(keyword);
+    public ResponseEntity<Page<PostDto>> searchInPost(
+            @RequestParam("keyword") String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size) {
+        Page<PostDto> posts = postService.searchPost(keyword, page, size);
         return ResponseEntity.ok(posts);
     }
+
 
     // Post Image Upload
 
@@ -108,12 +113,17 @@ public class PostController {
     }
 
     // method to serve file
-    @GetMapping(value = "/posts/images/{imageName}", produces = MediaType.IMAGE_JPEG_VALUE)
+    @GetMapping(value = "/posts/images/{imageName}")
     public void downloadImage(@PathVariable("imageName") String imageName, HttpServletResponse response) throws IOException {
         InputStream resource = this.fileService.getResource(path, imageName);
-        response.setContentType(MediaType.IMAGE_JPEG_VALUE);
+
+        // Dynamically detect and set content type based on file extension
+        String contentType = imageName.toLowerCase().endsWith(".png") ? MediaType.IMAGE_PNG_VALUE : MediaType.IMAGE_JPEG_VALUE;
+        response.setContentType(contentType);
+
         StreamUtils.copy(resource, response.getOutputStream());
     }
+
 
 
 
