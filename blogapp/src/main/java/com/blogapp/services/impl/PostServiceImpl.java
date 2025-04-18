@@ -115,12 +115,38 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<PostDto> getPostsByCategory(Integer categoryId) {
+    public PostResponse getPostsByCategory(Integer categoryId, Integer pageNumber, Integer pageSize, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+
         Category category = this.categoryRepo.findById(categoryId)
-                .orElseThrow(()-> new ResourceNotFoundException("category ", " category Id ", categoryId));
-        List<Post> posts= this.postRepo.findByCategory(category);
-        return posts.stream().map((post)-> this.modelMapper.map(post, PostDto.class)).collect(Collectors.toList());
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "Category Id", categoryId));
+
+        Page<Post> pagePosts = this.postRepo.findByCategory(category, pageable);
+        List<Post> posts = pagePosts.getContent();
+
+        List<PostDto> postDtos = posts.stream().map(post -> {
+            PostDto postDto = this.modelMapper.map(post, PostDto.class);
+
+            UserResponseDto userResponseDto = new UserResponseDto();
+            userResponseDto.setId(post.getUser().getId());
+            userResponseDto.setName(post.getUser().getName());
+            postDto.setUser(userResponseDto);
+
+            return postDto;
+        }).collect(Collectors.toList());
+
+        PostResponse postResponse = new PostResponse();
+        postResponse.setContent(postDtos);
+        postResponse.setPageNumber(pagePosts.getNumber());
+        postResponse.setPageSize(pagePosts.getSize());
+        postResponse.setTotalPages(pagePosts.getTotalPages());
+        postResponse.setTotalElements(pagePosts.getTotalElements());
+        postResponse.setLastpage(pagePosts.isLast());
+
+        return postResponse;
     }
+
 
     @Override
     public List<PostDto> getPostsByUser(Integer userId) {
@@ -131,13 +157,6 @@ public class PostServiceImpl implements PostService {
         return posts.stream().map((post)-> this.modelMapper.map(post, PostDto.class)).collect(Collectors.toList());
     }
 
-    /*@Override
-    public List<PostDto> searchPost(String keyword) {
-        List<Post> posts = this.postRepo.findByPostTitleContaining(keyword);
-        return posts.stream()
-                .map(post -> this.modelMapper.map(post, PostDto.class))
-                .collect(Collectors.toList());
-    }*/
 
     public Page<PostDto> searchPost(String keyword, int pageNumber, int pageSize) {
         if (keyword == null || keyword.trim().isEmpty()) {

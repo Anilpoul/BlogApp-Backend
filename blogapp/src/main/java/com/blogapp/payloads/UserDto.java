@@ -14,22 +14,25 @@ import java.util.Set;
 public class UserDto {
     private int id;
 
-    @NotEmpty
-    @Size(min = 4, message = "Username must be at least 4 characters long")
+    @NotBlank(message = "UserName cannot be blank")
     private String name;
 
     @Email(message = "Email address is not valid!")
+    @NotBlank(message = "Email cannot be blank")
+    @Pattern(
+            regexp = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$",
+            message = "Email must be a valid format like example@gmail.com"
+    )
     private String email;
 
-    @NotEmpty
-    @Size(min = 8, max = 20, message = "Password must be between 8 and 20 characters")
+    @NotBlank(message = "Password cannot be blank")
     @Pattern(
             regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,20}$",
             message = "Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character"
     )
     private String password;
 
-
+    @Size(min = 10, message = "About section must be at least 10 characters long")
     private String about;
 
     private Set<Role> roles;

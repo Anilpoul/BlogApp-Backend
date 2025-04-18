@@ -33,14 +33,12 @@ public class UserController {
     @Autowired
     private JwtUtil jwtUtil;
 
-    // 🟢 1️⃣ User Registration
     @PostMapping("/register")
     public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserDto userDto) {
         UserDto createdUser = this.userService.createUser(userDto);
         return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
     }
 
-    // 🔵 User Login with JWT Token
     @PostMapping("/login")
     public ResponseEntity<JwtAuthResponse> login(@RequestBody LoginRequest loginRequest) {
         try {
@@ -72,15 +70,12 @@ public class UserController {
         return ResponseEntity.ok("Logged out successfully");
     }
 
-
-    // 🟠 3️⃣ Update User (Requires Authentication)
     @PutMapping("/{userId}")
     public ResponseEntity<UserDto> updateUser(@Valid @RequestBody UserDto userDto, @PathVariable("userId") Integer uid) {
         UserDto updatedUser = this.userService.updateUser(userDto, uid);
         return ResponseEntity.ok(updatedUser);
     }
 
-    // 🔴 4️⃣ Delete User (Requires ADMIN Role)
     @DeleteMapping("/{userId}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ApiResponse> deleteUser(@PathVariable("userId") Integer uid) {
@@ -88,7 +83,6 @@ public class UserController {
         return new ResponseEntity<>(new ApiResponse("User deleted successfully", true), HttpStatus.OK);
     }
 
-    // 🟣 5️⃣ Get All Users (Requires ADMIN Role)
     @GetMapping("/")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<List<UserDto>> getAllUsers() {
@@ -96,7 +90,6 @@ public class UserController {
     }
 
 
-    // 🟢 6️⃣ Get Single User (Authenticated)
     @GetMapping("/{userId}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserDto> getSingleUser(@PathVariable Integer userId) {

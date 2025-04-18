@@ -16,7 +16,7 @@ import java.util.function.Function;
 public class JwtUtil {
 
     private static final String SECRET_KEY = "VO6PUZTSAQxedzHLvhYE9C1MGN/tgYmYrfVsNNbufjs="; // Use environment variables instead
-    private static final long EXPIRATION_TIME = 1000 * 60 * 5; // 30 minutes
+    private static final long EXPIRATION_TIME = 1000 * 60 * 10; // 10 minutes
 
     private Key getSigningKey() {
         byte[] keyBytes = Base64.getDecoder().decode(SECRET_KEY);
@@ -80,7 +80,5 @@ public class JwtUtil {
         invalidatedTokens.add(token);
     }
 
-    public boolean isTokenInvalid(String token) {
-        return invalidatedTokens.contains(token);
-    }
+
 }

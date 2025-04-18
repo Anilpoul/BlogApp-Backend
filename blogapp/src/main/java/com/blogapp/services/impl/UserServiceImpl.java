@@ -1,5 +1,6 @@
 package com.blogapp.services.impl;
 
+import com.blogapp.exceptions.EmailAlreadyExistsException;
 import com.blogapp.exceptions.ResourceNotFoundException;
 import com.blogapp.models.User;
 import com.blogapp.models.Role;
@@ -36,19 +37,23 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto createUser(UserDto userDto) {
-        // ✅ Encrypt password before saving
+        if (userRepo.findByEmail(userDto.getEmail()).isPresent()) {
+            throw new EmailAlreadyExistsException("User with email '" + userDto.getEmail() + "' already exists.");
+        }
+
         userDto.setPassword(encoder.encode(userDto.getPassword()));
 
         if (userDto.getEmail().endsWith("@admin.com")) {
-            userDto.setRoles(Set.of(Role.ROLE_ADMIN)); // Assign "ADMIN" role
+            userDto.setRoles(Set.of(Role.ROLE_ADMIN));
         } else {
-            userDto.setRoles(Set.of(Role.ROLE_USER));  // Assign default "USER" role
+            userDto.setRoles(Set.of(Role.ROLE_USER));
         }
 
         User user = this.dtoToUser(userDto);
         User savedUser = this.userRepo.save(user);
         return this.userToDto(savedUser);
     }
+
 
     @Override
     public UserDto updateUser(UserDto userDto, Integer userId) {

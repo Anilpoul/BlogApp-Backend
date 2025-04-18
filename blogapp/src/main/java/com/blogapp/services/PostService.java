@@ -4,6 +4,7 @@ import com.blogapp.models.Post;
 import com.blogapp.payloads.PostDto;
 import com.blogapp.payloads.PostResponse;
 import org.springframework.data.domain.Page;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.List;
 
@@ -23,7 +24,7 @@ public interface PostService {
     PostDto getPostById(Integer postId);
 
     // get all posts by category
-    List<PostDto> getPostsByCategory(Integer categoryId);
+    PostResponse getPostsByCategory(Integer categoryId, Integer pageNumber, Integer pageSize, String sortBy, String sortDir);
 
     //get all Posts by User
     List<PostDto> getPostsByUser(Integer userId);
