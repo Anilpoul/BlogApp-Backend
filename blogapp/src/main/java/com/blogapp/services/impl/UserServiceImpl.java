@@ -63,14 +63,13 @@ public class UserServiceImpl implements UserService {
         user.setName(userDto.getName());
         user.setEmail(userDto.getEmail());
 
-        // ✅ Ensure password updates are always encrypted
         if (userDto.getPassword() != null && !userDto.getPassword().isEmpty()) {
             user.setPassword(encoder.encode(userDto.getPassword()));
         }
 
         user.setAbout(userDto.getAbout());
 
-        // ✅ Update roles (if provided)
+        // Update roles (if provided)
         if (userDto.getRoles() != null) {
             user.setRoles(userDto.getRoles());
         }
@@ -100,14 +99,12 @@ public class UserServiceImpl implements UserService {
         this.userRepo.delete(user);
     }
 
-    // ✅ New method to fetch users by role
+    // fetch users by role
     @Override
     public List<UserDto> getUsersByRole(String role) {
         List<User> users = userRepo.findByRoles(Role.valueOf(role.toUpperCase()));
         return users.stream().map(this::userToDto).collect(Collectors.toList());
     }
-
-    // 🔥 Removed `authenticateUser()` since authentication is handled by Spring Security.
 
     public User dtoToUser(UserDto userDto) {
         return this.modelMapper.map(userDto, User.class);
@@ -119,6 +116,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDetails loadUserByUsername(String username) {
-        return customUserDetailService.loadUserByUsername(username);  // Delegate to CustomUserDetailService
+        return customUserDetailService.loadUserByUsername(username); 
     }
 }
