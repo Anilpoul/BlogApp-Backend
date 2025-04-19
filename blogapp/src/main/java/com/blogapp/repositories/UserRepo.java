@@ -1,7 +1,7 @@
 package com.blogapp.repositories;
 
 import com.blogapp.models.User;
-import com.blogapp.models.Role;  // Import Role model
+import com.blogapp.models.Role; 
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
