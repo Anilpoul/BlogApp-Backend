@@ -13,8 +13,7 @@ public interface UserService {
     List<UserDto> getAllUsers();
     void deleteUser(Integer userId);
 
-    // 🔹 New Methods:
-    List<UserDto> getUsersByRole(String role); // ✅ Fetch users based on role
-    // 🔹 Add method to load user by username (email in your case)
-    UserDetails loadUserByUsername(String username); // This will load UserDetails
+    List<UserDto> getUsersByRole(String role); 
+
+    UserDetails loadUserByUsername(String username); 
 }
