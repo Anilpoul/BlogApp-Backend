@@ -6,7 +6,6 @@ import com.blogapp.models.Post;
 import com.blogapp.models.User;
 import com.blogapp.payloads.PostDto;
 import com.blogapp.payloads.PostResponse;
-import com.blogapp.payloads.UserDto;
 import com.blogapp.payloads.UserResponseDto;
 import com.blogapp.repositories.CategoryRepo;
 import com.blogapp.repositories.PostRepo;
@@ -14,11 +13,9 @@ import com.blogapp.repositories.UserRepo;
 import com.blogapp.services.PostService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Date;
 import java.util.List;
@@ -39,62 +36,74 @@ public class PostServiceImpl implements PostService {
     @Autowired
     private CategoryRepo categoryRepo;
 
+    @Value("${app.image.base-url}")
+    private String imageBaseUrl;
+
+    private PostDto convertToDtoWithImageUrl(Post post) {
+        PostDto postDto = modelMapper.map(post, PostDto.class);
+        postDto.setImageUrl(imageBaseUrl + post.getImageName());
+
+        UserResponseDto userDto = new UserResponseDto();
+        userDto.setId(post.getUser().getId());
+        userDto.setName(post.getUser().getName());
+        postDto.setUser(userDto);
+
+        return postDto;
+    }
 
     @Override
     public PostDto createPost(PostDto postDto, Integer userId, Integer categoryId) {
         User user = this.userRepo.findById(userId)
-                .orElseThrow(()-> new ResourceNotFoundException("user ", "user id ", userId));
+                .orElseThrow(() -> new ResourceNotFoundException("User", "userId", userId));
+
         Category category = this.categoryRepo.findById(categoryId)
-                .orElseThrow(() -> new ResourceNotFoundException("Category ", " category id ", categoryId));
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
 
         Post post = this.modelMapper.map(postDto, Post.class);
-        post.setImageName("default.png");
+
+        if (post.getImageName() == null || post.getImageName().isEmpty()) {
+            post.setImageName("default.png");
+        }
+        
         post.setCreationDate(new Date());
         post.setUser(user);
         post.setCategory(category);
 
         Post newPost = this.postRepo.save(post);
-        return this.modelMapper.map(newPost,PostDto.class);
+        return convertToDtoWithImageUrl(newPost);
     }
 
     @Override
     public PostDto updatePost(PostDto postDto, Integer postId) {
         Post post = this.postRepo.findById(postId)
-                .orElseThrow(()-> new ResourceNotFoundException("Post", "Post Id ", postId));
+                .orElseThrow(() -> new ResourceNotFoundException("Post", "postId", postId));
+
         post.setPostTitle(postDto.getPostTitle());
         post.setContent(postDto.getContent());
         post.setImageName(postDto.getImageName());
 
         Post updatedPost = this.postRepo.save(post);
-
-        return this.modelMapper.map(updatedPost, PostDto.class);
+        return convertToDtoWithImageUrl(updatedPost);
     }
 
     @Override
     public void deletePost(Integer postId) {
         Post post = this.postRepo.findById(postId)
-                .orElseThrow(()-> new ResourceNotFoundException("Post", "Post Id ", postId));
+                .orElseThrow(() -> new ResourceNotFoundException("Post", "postId", postId));
         this.postRepo.delete(post);
     }
 
     @Override
     public PostResponse getAllPost(Integer pageNumber, Integer pageSize, String sortBy, String sortDir) {
-        Sort sort = (sortDir.equalsIgnoreCase("asc")) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Sort sort = sortDir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+
         Page<Post> pagePost = this.postRepo.findAll(pageable);
         List<Post> posts = pagePost.getContent();
 
-        List<PostDto> postDtos = posts.stream().map(post -> {
-            PostDto postDto = this.modelMapper.map(post, PostDto.class);
-
-            UserResponseDto userResponseDto = new UserResponseDto();
-            userResponseDto.setId(post.getUser().getId());
-            userResponseDto.setName(post.getUser().getName());
-            postDto.setUser(userResponseDto);
-
-
-            return postDto;
-        }).collect(Collectors.toList());
+        List<PostDto> postDtos = posts.stream()
+                .map(this::convertToDtoWithImageUrl)
+                .collect(Collectors.toList());
 
         PostResponse postResponse = new PostResponse();
         postResponse.setContent(postDtos);
@@ -107,11 +116,11 @@ public class PostServiceImpl implements PostService {
         return postResponse;
     }
 
-
     @Override
     public PostDto getPostById(Integer postId) {
-        return this.modelMapper.map(this.postRepo.findById(postId)
-                .orElseThrow(()->new ResourceNotFoundException("Post ", " Post Id ", postId)), PostDto.class);
+        Post post = this.postRepo.findById(postId)
+                .orElseThrow(() -> new ResourceNotFoundException("Post", "postId", postId));
+        return convertToDtoWithImageUrl(post);
     }
 
     @Override
@@ -120,21 +129,14 @@ public class PostServiceImpl implements PostService {
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
 
         Category category = this.categoryRepo.findById(categoryId)
-                .orElseThrow(() -> new ResourceNotFoundException("Category", "Category Id", categoryId));
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
 
         Page<Post> pagePosts = this.postRepo.findByCategory(category, pageable);
         List<Post> posts = pagePosts.getContent();
 
-        List<PostDto> postDtos = posts.stream().map(post -> {
-            PostDto postDto = this.modelMapper.map(post, PostDto.class);
-
-            UserResponseDto userResponseDto = new UserResponseDto();
-            userResponseDto.setId(post.getUser().getId());
-            userResponseDto.setName(post.getUser().getName());
-            postDto.setUser(userResponseDto);
-
-            return postDto;
-        }).collect(Collectors.toList());
+        List<PostDto> postDtos = posts.stream()
+                .map(this::convertToDtoWithImageUrl)
+                .collect(Collectors.toList());
 
         PostResponse postResponse = new PostResponse();
         postResponse.setContent(postDtos);
@@ -147,17 +149,18 @@ public class PostServiceImpl implements PostService {
         return postResponse;
     }
 
-
     @Override
     public List<PostDto> getPostsByUser(Integer userId) {
         User user = this.userRepo.findById(userId)
-                .orElseThrow(()-> new ResourceNotFoundException("User ", " userId ", userId));
-        List<Post> posts= this.postRepo.findByUser(user);
+                .orElseThrow(() -> new ResourceNotFoundException("User", "userId", userId));
+        List<Post> posts = this.postRepo.findByUser(user);
 
-        return posts.stream().map((post)-> this.modelMapper.map(post, PostDto.class)).collect(Collectors.toList());
+        return posts.stream()
+                .map(this::convertToDtoWithImageUrl)
+                .collect(Collectors.toList());
     }
 
-
+    @Override
     public Page<PostDto> searchPost(String keyword, int pageNumber, int pageSize) {
         if (keyword == null || keyword.trim().isEmpty()) {
             throw new IllegalArgumentException("Keyword must not be empty");
@@ -169,10 +172,6 @@ public class PostServiceImpl implements PostService {
                 keyword.trim(), keyword.trim(), pageable
         );
 
-        return postPage.map(post -> modelMapper.map(post, PostDto.class));
+        return postPage.map(this::convertToDtoWithImageUrl);
     }
-
-
-
-
 }

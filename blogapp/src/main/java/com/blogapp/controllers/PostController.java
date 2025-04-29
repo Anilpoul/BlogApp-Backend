@@ -9,7 +9,7 @@ import com.blogapp.repositories.UserRepo;
 import com.blogapp.services.FileService;
 import com.blogapp.services.PostService;
 import com.blogapp.services.UserService;
-import com.blogapp.utils.JwtUtil; 
+import com.blogapp.utils.JwtUtil;  // Assuming you have JwtUtil for handling JWT operations
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,7 +44,7 @@ public class PostController {
     private UserRepo userRepo;
 
     @Autowired
-    private JwtUtil jwtUtil;  
+    private JwtUtil jwtUtil;  // Inject JwtUtil for token handling
 
     @Value("${project.image}")
     private String path;
@@ -65,15 +65,12 @@ public class PostController {
         }
 
         String username = jwtUtil.extractUsername(token);
-
-        
         UserDetails userDetails = userService.loadUserByUsername(username);
 
         if (!jwtUtil.validateToken(token, userDetails)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         }
 
-        
         User actualUser = userRepo.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 

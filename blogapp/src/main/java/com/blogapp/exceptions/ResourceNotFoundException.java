@@ -9,6 +9,7 @@ public class ResourceNotFoundException extends RuntimeException {
     String resourceName;
     String fieldName;
     long fieldValue;
+    String username;
     String value;
 
     public ResourceNotFoundException(String resourceName, String fieldName, long fieldValue) {
@@ -20,5 +21,12 @@ public class ResourceNotFoundException extends RuntimeException {
     public ResourceNotFoundException(String value) {
         super(String.format("No posts found containing the keyword : %s", value));
         this.value= value;
+    }
+
+    public ResourceNotFoundException(String resourceName, String fieldName, String username) {
+        super(String.format("%s not found with %s : %s", resourceName, fieldName, username));
+        this.resourceName = resourceName;
+        this.fieldName = fieldName;
+        this.username = username;
     }
 }
