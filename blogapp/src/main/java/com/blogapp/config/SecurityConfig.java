@@ -83,17 +83,17 @@ public class SecurityConfig {
                                 "/swagger-ui.html"
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/posts/*/comments").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/posts/*/comments").hasRole("USER")
                         .requestMatchers(HttpMethod.GET, "/api/posts/*/comments").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/category/{categoryId}/posts").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/posts/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/users/").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/users/{userId}").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/posts/**").hasRole("USER")
                         .requestMatchers(HttpMethod.PUT, "/api/users/{userId}").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/users/{userId}").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
-
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
@@ -101,4 +101,5 @@ public class SecurityConfig {
 
         return http.build();
     }
+
 }

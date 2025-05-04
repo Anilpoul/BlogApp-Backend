@@ -9,7 +9,7 @@ import com.blogapp.repositories.UserRepo;
 import com.blogapp.services.FileService;
 import com.blogapp.services.PostService;
 import com.blogapp.services.UserService;
-import com.blogapp.utils.JwtUtil;  // Assuming you have JwtUtil for handling JWT operations
+import com.blogapp.utils.JwtUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,7 +44,7 @@ public class PostController {
     private UserRepo userRepo;
 
     @Autowired
-    private JwtUtil jwtUtil;  // Inject JwtUtil for token handling
+    private JwtUtil jwtUtil;
 
     @Value("${project.image}")
     private String path;
@@ -93,10 +93,6 @@ public class PostController {
         return new ResponseEntity<>(createdPostDto, HttpStatus.CREATED);
     }
 
-
-
-
-    // Get Posts By Category
     @GetMapping("/category/{categoryId}/posts")
     public ResponseEntity<PostResponse> getPostByCategory(
             @PathVariable Integer categoryId,
@@ -109,15 +105,12 @@ public class PostController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-
-    // Get Posts By User
     @GetMapping("/user/{userId}/posts")
     public ResponseEntity<List<PostDto>> getPostsByUser(@PathVariable Integer userId){
         List<PostDto> posts = this.postService.getPostsByUser(userId);
         return new ResponseEntity<>(posts, HttpStatus.OK);
     }
 
-    // Get All Posts
     @GetMapping("/posts")
     public ResponseEntity<PostResponse> getAllPosts(
             @RequestParam(value = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
@@ -127,26 +120,22 @@ public class PostController {
         return new ResponseEntity<>(this.postService.getAllPost(pageNumber, pageSize, sortBy, sortDir), HttpStatus.OK);
     }
 
-    // Get Post By PostId
     @GetMapping("/posts/{postId}")
     public ResponseEntity<PostDto> getPostById(@PathVariable Integer postId){
         return new ResponseEntity<>(this.postService.getPostById(postId), HttpStatus.OK);
     }
 
-    // Delete Post
     @DeleteMapping("/posts/{postId}")
     public ApiResponse deletePost(@PathVariable Integer postId){
         this.postService.deletePost(postId);
         return new ApiResponse("Post is Deleted Successfully! ", true);
     }
 
-    // Update Post
     @PutMapping("/posts/{postId}")
     public ResponseEntity<PostDto> updatePost(@RequestBody PostDto postDto, @PathVariable Integer postId){
         return new ResponseEntity<>(this.postService.updatePost(postDto, postId), HttpStatus.OK);
     }
 
-    // Search by keyword in title or content
     @GetMapping("/posts/search")
     public ResponseEntity<Page<PostDto>> searchInPost(
             @RequestParam("keyword") String keyword,
@@ -156,7 +145,7 @@ public class PostController {
         return ResponseEntity.ok(posts);
     }
 
-    // Post Image Upload
+
     @PostMapping("/posts/image/upload/{postId}")
     public ResponseEntity<PostDto> uploadFile(@RequestParam MultipartFile image, @PathVariable Integer postId) throws IOException {
         PostDto postDto = this.postService.getPostById(postId);
@@ -167,12 +156,10 @@ public class PostController {
         return new ResponseEntity<>(updatedPost, HttpStatus.OK);
     }
 
-    // Method to serve file
     @GetMapping(value = "/posts/images/{imageName}")
     public void downloadImage(@PathVariable("imageName") String imageName, HttpServletResponse response) throws IOException {
         InputStream resource = this.fileService.getResource(path, imageName);
 
-        // Dynamically detect and set content type based on file extension
         String contentType = imageName.toLowerCase().endsWith(".png") ? MediaType.IMAGE_PNG_VALUE : MediaType.IMAGE_JPEG_VALUE;
         response.setContentType(contentType);
 

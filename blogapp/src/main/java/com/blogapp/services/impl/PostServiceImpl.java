@@ -80,7 +80,6 @@ public class PostServiceImpl implements PostService {
 
         post.setPostTitle(postDto.getPostTitle());
         post.setContent(postDto.getContent());
-        post.setImageName(postDto.getImageName());
 
         Post updatedPost = this.postRepo.save(post);
         return convertToDtoWithImageUrl(updatedPost);

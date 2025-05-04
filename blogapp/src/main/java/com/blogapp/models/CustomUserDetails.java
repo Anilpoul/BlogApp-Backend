@@ -20,7 +20,7 @@ public class CustomUserDetails implements UserDetails {
     }
 
     public int getId() {
-        return user.getId(); // Now you can fetch userId dynamically
+        return user.getId();
     }
 
     @Override
@@ -57,6 +57,6 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true; // Adjust based on your entity
+        return true;
     }
 }

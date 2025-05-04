@@ -15,13 +15,12 @@ import java.util.function.Function;
 @Component
 public class JwtUtil {
 
-    private static final String SECRET_KEY = "VO6PUZTSAQxedzHLvhYE9C1MGN/tgYmYrfVsNNbufjs="; // Use environment variables instead
-    private static final long EXPIRATION_TIME = 1000 * 60 * 10; // 10 minutes
+    private static final String SECRET_KEY = "VO6PUZTSAQxedzHLvhYE9C1MGN/tgYmYrfVsNNbufjs=";
+    private static final long EXPIRATION_TIME = 1000 * 60 * 30;
 
     private Key getSigningKey() {
         byte[] keyBytes = Base64.getDecoder().decode(SECRET_KEY);
 
-        // Ensure key is at least 32 bytes (256 bits) long
         if (keyBytes.length < 32) {
             throw new RuntimeException("Invalid JWT secret key. Must be at least 32 bytes long.");
         }
@@ -35,7 +34,7 @@ public class JwtUtil {
 
         if (userDetails instanceof CustomUserDetails) {
             CustomUserDetails customUser = (CustomUserDetails) userDetails;
-            claims.put("userId", customUser.getId()); // Get user ID from DB
+            claims.put("userId", customUser.getId());
             claims.put("role", customUser.getAuthorities().toString());
         }
 

@@ -18,10 +18,6 @@ public class ResourceNotFoundException extends RuntimeException {
         this.fieldName = fieldName;
         this.fieldValue = fieldValue;
     }
-    public ResourceNotFoundException(String value) {
-        super(String.format("No posts found containing the keyword : %s", value));
-        this.value= value;
-    }
 
     public ResourceNotFoundException(String resourceName, String fieldName, String username) {
         super(String.format("%s not found with %s : %s", resourceName, fieldName, username));

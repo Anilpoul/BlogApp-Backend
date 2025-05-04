@@ -1,6 +1,7 @@
 package com.blogapp.payloads;
 
 import com.blogapp.models.Role;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,6 +31,7 @@ public class UserDto {
             regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,20}$",
             message = "Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character"
     )
+    @JsonIgnore
     private String password;
 
     @Size(min = 10, message = "About section must be at least 10 characters long")

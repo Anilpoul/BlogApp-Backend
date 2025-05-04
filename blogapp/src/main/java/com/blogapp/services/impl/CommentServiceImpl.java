@@ -36,7 +36,6 @@ public class CommentServiceImpl implements CommentService {
         Post post = this.postRepo.findById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException("Post", "postId", postId));
 
-        // Fetch the logged-in user using principal
         String username = principal.getName();
         User user = this.userRepo.findByEmail(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "email", username));
@@ -48,7 +47,6 @@ public class CommentServiceImpl implements CommentService {
 
         return this.modelMapper.map(savedComment, CommentDto.class);
     }
-
 
     @Override
     public List<CommentDto> getCommentsByPost(Integer postId) {

@@ -11,12 +11,10 @@ import com.blogapp.services.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -54,7 +52,6 @@ public class UserServiceImpl implements UserService {
         return this.userToDto(savedUser);
     }
 
-
     @Override
     public UserDto updateUser(UserDto userDto, Integer userId) {
         User user = this.userRepo.findById(userId)
@@ -69,7 +66,6 @@ public class UserServiceImpl implements UserService {
 
         user.setAbout(userDto.getAbout());
 
-        // Update roles (if provided)
         if (userDto.getRoles() != null) {
             user.setRoles(userDto.getRoles());
         }
@@ -99,7 +95,6 @@ public class UserServiceImpl implements UserService {
         this.userRepo.delete(user);
     }
 
-    // fetch users by role
     @Override
     public List<UserDto> getUsersByRole(String role) {
         List<User> users = userRepo.findByRoles(Role.valueOf(role.toUpperCase()));

@@ -65,7 +65,7 @@ public class UserController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired token");
             }
 
-            jwtUtil.invalidateToken(token); // Add token to invalid list
+            jwtUtil.invalidateToken(token);
         }
         return ResponseEntity.ok("Logged out successfully");
     }

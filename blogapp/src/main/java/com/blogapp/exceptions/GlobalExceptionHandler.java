@@ -30,17 +30,15 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String >> handleMethodArgsNotValidException(MethodArgumentNotValidException ex){
         Map<String, String> errors = new HashMap<>();
 
-        // Extract field errors from exception
         ex.getBindingResult().getAllErrors().forEach((error) -> {
-            String fieldName = ((FieldError) error).getField();  // Get the field name
-            String errorMessage = error.getDefaultMessage();      // Get the error message
-            errors.put(fieldName, errorMessage);                 // Put field name and error message in map
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
         });
 
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
-    // Handle IllegalArgumentException
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, String>> handleIllegalArgumentException(IllegalArgumentException ex) {
         Map<String, String> response = new HashMap<>();
